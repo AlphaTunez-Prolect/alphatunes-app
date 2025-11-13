@@ -1,4 +1,10 @@
+import 'package:alpha_tunze/Theme/theme_provider.dart';
 import 'package:alpha_tunze/exports.dart';
+import 'package:provider/provider.dart';
+import 'package:stacked/stacked.dart';
+
+import '../Theme/theme.dart';
+import '../Theme/themeviewmodel/theme_viewmodel.dart';
 
 
 class DisplaymodeScreen extends StatelessWidget {
@@ -6,8 +12,13 @@ class DisplaymodeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black, // Set background color
+    return  ViewModelBuilder<ThemeViewModel>.reactive(
+        viewModelBuilder: () => ThemeViewModel(),
+    builder: (context, model, child) {
+    return
+
+      Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.background, // Set background color
       body: Stack(
         children: [
           // Background Image
@@ -16,6 +27,7 @@ class DisplaymodeScreen extends StatelessWidget {
               colorFilter: ColorFilter.mode(
                 Colors.black.withOpacity(0.7), // Dark overlay with 50% opacity
                 BlendMode.darken,
+
               ),
               child: Image.asset(
                 'assets/yada.png',
@@ -57,8 +69,17 @@ class DisplaymodeScreen extends StatelessWidget {
                     child: Container(
                       child: Column(
                         children: [
-                          Image.asset('assets/icons/Sun 1.png',width: 50,),
-                          Text('Dark mode',
+
+                          GestureDetector(
+                            onTap: (){
+
+                              Provider.of<ThemeProvider>(context, listen: false).themeData = lightMode;
+
+
+    },
+                              child: Image.asset('assets/icons/Sun 1.png',width: 50,)),
+
+                          Text('Light',
                             style: TextStyle(
                               color: Colors.white,
 
@@ -70,11 +91,23 @@ class DisplaymodeScreen extends StatelessWidget {
                     ),
                   ),
                   SizedBox(width: 55,),
+
                   SizedBox(
                     child: Container(
                       child: Column(
                         children: [
-                          Image.asset('assets/icons/Moon.png',width: 50,),
+
+
+
+                          GestureDetector(
+
+                              onTap: (){
+
+                                Provider.of<ThemeProvider>(context, listen: false).themeData = darkMode;
+                              },
+                              child:  Image.asset('assets/icons/Moon.png',width: 50,)),
+
+
                           Text('Dark mode',
                           style: TextStyle(
                             color: Colors.white,
@@ -106,7 +139,7 @@ class DisplaymodeScreen extends StatelessWidget {
                     },
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                      backgroundColor: Color(0xFFE40683),
+                      backgroundColor: Theme.of(context).colorScheme.background,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
                       ),
@@ -115,7 +148,7 @@ class DisplaymodeScreen extends StatelessWidget {
                       'Get Started',
                       style: TextStyle(
                         fontSize: 18,
-                        color: Colors.white, // Text color
+                        color: Theme.of(context).textTheme.titleLarge?.color, // Text color
                       ),
                     ),
                   ),
@@ -127,6 +160,8 @@ class DisplaymodeScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+    },
     );
   }
 }

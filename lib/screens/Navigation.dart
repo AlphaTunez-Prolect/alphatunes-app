@@ -1,8 +1,15 @@
 import 'package:alpha_tunze/exports.dart';
+import 'package:alpha_tunze/screens/playlistview.dart';
+import 'package:alpha_tunze/screens/profile.dart';
 import 'package:alpha_tunze/screens/smartmix.dart';
 
+import '../authentication/password/Resetpassword.dart';
+import 'albumscreen.dart';
+import 'audio.dart';
 import 'explore.dart';
-import 'home.dart'; // Import your exports file
+import 'home.dart';
+import 'library.dart';
+import 'nowplaying.dart'; // Import your exports file
 
 class NavigationScreen extends StatefulWidget {
   @override
@@ -16,8 +23,14 @@ class _NavigationScreenState extends State<NavigationScreen> {
     HomeScreen(),
     ExploreScreen(),
     SmartMixScreen(),
-    PageScreen(title: "Library"),
-    PageScreen(title: "Profile"),
+    LibraryScreen(),
+    // AssetAudioPlayerScreen(),
+    ProfileScreen(),
+    // SignInScreen(),
+    // ResetpasswordScreen(email: '',),
+    // MusicPlayerScreen(),
+    // TodaysTopHitScreen(),
+    // AlbumScreen(title: '', artist: '', image: '',),
   ];
 
   final List<String> _iconPaths = [
@@ -52,6 +65,9 @@ class _NavigationScreenState extends State<NavigationScreen> {
         unselectedLabelStyle: TextStyle(fontWeight: FontWeight.normal),
         items: List.generate(_iconPaths.length, (index) {
           return BottomNavigationBarItem(
+
+
+
             icon: Image.asset(
               _iconPaths[index],
               width: 24,

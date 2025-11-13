@@ -1,23 +1,129 @@
 import 'package:alpha_tunze/exports.dart';
+import 'dart:convert' as convert;
+import 'package:http/http.dart' as http;
+import 'package:overlay_support/overlay_support.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../screens/Navigation.dart';
+import '../screens/home.dart';
 
-class RegisterScreen extends StatelessWidget {
+class RegisterScreen extends StatefulWidget {
+  @override
+  State<RegisterScreen> createState() => _RegisterScreenState();
+}
+
+class _RegisterScreenState extends State<RegisterScreen> {
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+
+  // Add the missing _saveUserData method
+  Future<void> _saveUserData({
+    required String firstName,
+    required String lastName,
+    required String email,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('user_first_name', firstName);
+    await prefs.setString('user_last_name', lastName);
+    await prefs.setString('user_email', email);
+    await prefs.setBool('is_logged_in', true); // Important: Mark user as logged in
+
+    print('✅ User data saved locally: $firstName $lastName - $email');
+  }
+
+  Future<void> signUpUser({
+    required String firstName,
+    required String lastName,
+    required String email,
+    required String password,
+  }) async {
+    final url = Uri.parse('https://openauthzero.myf2.net/openauthzero/user/signup');
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: convert.jsonEncode({
+          'firstname': firstName,
+          'lastname': lastName,
+          'email': email,
+          'password': password,
+        }),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = convert.jsonDecode(response.body);
+
+        final message = data['message'];
+        final mailSent = data['mailsent'];
+        final status = data['status'];
+
+        // Save user data locally AFTER successful registration
+        await _saveUserData(
+          firstName: firstName,
+          lastName: lastName,
+          email: email,
+        );
+
+        // Also save additional data if available from response
+        if (data['user'] != null) {
+          final prefs = await SharedPreferences.getInstance();
+          final user = data['user'];
+          if (user['id'] != null) {
+            await prefs.setString('user_id', user['id'].toString());
+          }
+        }
+
+        // Save token if available
+        if (data['token'] != null || data['access_token'] != null) {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('auth_token', data['token'] ?? data['access_token']);
+        }
+
+        showSimpleNotification(
+          Text(message ?? 'Registration successful!'),
+          background: Colors.green,
+        );
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => SignInScreen()),
+        );
+
+        print('✅ Sign up successful: $data');
+      } else {
+        final errorData = convert.jsonDecode(response.body);
+        showSimpleNotification(
+          Text(errorData['message'] ?? "Sign up failed: ${response.reasonPhrase}"),
+          background: Colors.red,
+        );
+        print('❌ Failed to sign up: ${response.statusCode}');
+        print('Response body: ${response.body}');
+      }
+    } catch (e) {
+      showSimpleNotification(
+        Text("Error: ${e.toString()}"),
+        background: Colors.red,
+      );
+      print('⚠️ Error occurred: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black, // Dark theme
-      // appBar: AppBar(
-      //
-      // ),
+      backgroundColor: Theme.of(context).colorScheme.background,
       body: SingleChildScrollView(
         child: Stack(
           children: [
             Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Colors.black, Color(0xFF220D31)], // Dark gradient
+                  colors: [Colors.black, Color(0xFF220D31)],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                 ),
@@ -28,84 +134,62 @@ class RegisterScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const SizedBox(height: 10),
-
+                  const SizedBox(height: 35),
                   // Back Button
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Row(
                       children: [
                         IconButton(
-                          icon: Icon(Icons.arrow_back_ios, color: Colors.white),
+                          icon: Icon(Icons.arrow_back_ios, color: Colors.white), // Changed to white for visibility
                           onPressed: () => Navigator.pop(context),
-                        ), SizedBox(width: 35,),
-                        Logo(assetPath:AppImages.AppLogo,
-                          width: 200, height: 150,),
+                        ),
                       ],
                     ),
                   ),
                   const SizedBox(height: 20),
-                  // Sign In Header
+                  // Register Header
                   Text(
                     "Register",
                     style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontSize: 16,
+                      color: Colors.white, // Made more visible
+                      fontSize: 24, // Increased size
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-
                   const SizedBox(height: 25),
-                  // Username Input
-                  // _buildInputField("Enter Username Or Email", false),
+
                   CustomInputField(
-                    hint: "Full Name",
+                    hint: "First Name",
                     isPassword: false,
-                    controller: _emailController,
-                    onChanged: (value) {
-                      // Handle email input changes
-                    },
+                    controller: _firstNameController,
+                    onChanged: (value) {},
                   ),
                   const SizedBox(height: 15),
+
                   CustomInputField(
-                    hint: "Enter Email",
+                    hint: "Last Name",
                     isPassword: false,
-                    controller: _emailController,
-                    onChanged: (value) {
-                      // Handle email input changes
-                    },
+                    controller: _lastNameController,
+                    onChanged: (value) {},
                   ),
                   const SizedBox(height: 15),
+
                   CustomInputField(
-                    hint: "Mobile Number",
+                    hint: "Email",
                     isPassword: false,
                     controller: _emailController,
-                    onChanged: (value) {
-                      // Handle email input changes
-                    },
+                    onChanged: (value) {},
                   ),
                   const SizedBox(height: 15),
-                  // Password Input
-                  // _buildInputField("Password", true),
 
                   CustomInputField(
                     hint: "Password",
                     isPassword: true,
                     controller: _passwordController,
-                    onChanged: (value) {
-                      // Handle password input changes
-                    },
+                    onChanged: (value) {},
                   ),
                   const SizedBox(height: 15),
-
-                  CustomInputField(
-                    hint: "Confirm Password",
-                    isPassword: true,
-                    controller: _passwordController,
-                    onChanged: (value) {
-                      // Handle password input changes
-                    },
-                  ),
                   const SizedBox(height: 10),
 
                   // Forgot Password
@@ -122,12 +206,30 @@ class RegisterScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 20),
 
-                  // Sign In Button
+                  // Sign Up Button
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      // Add validation
+                      if (_firstNameController.text.trim().isEmpty ||
+                          _lastNameController.text.trim().isEmpty ||
+                          _emailController.text.trim().isEmpty ||
+                          _passwordController.text.trim().isEmpty) {
+                        showSimpleNotification(
+                          Text("Please fill in all fields"),
+                          background: Colors.orange,
+                        );
+                        return;
+                      }
+
+                      signUpUser(
+                        firstName: _firstNameController.text.trim(),
+                        lastName: _lastNameController.text.trim(),
+                        email: _emailController.text.trim(),
+                        password: _passwordController.text.trim(),
+                      );
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.pinkAccent,
                       shape: RoundedRectangleBorder(
@@ -136,7 +238,7 @@ class RegisterScreen extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 100),
                     ),
                     child: Text(
-                      "Sign In",
+                      "Sign Up",
                       style: GoogleFonts.poppins(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -144,7 +246,6 @@ class RegisterScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 20),
 
                   // Divider with OR
@@ -168,40 +269,40 @@ class RegisterScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 20),
 
                   // Social Media Login
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      _buildSocialButton("assets/icons/google.png"), // Replace with actual asset
+                      _buildSocialButton("assets/icons/google.png"),
                       const SizedBox(width: 20),
                       _buildSocialButton("assets/icons/apple.png"),
                     ],
                   ),
-
                   const SizedBox(height: 30),
 
-                  // Register Link
+                  // Already have account link
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        "Forgot Password?",
+                        "Already have an account? ",
                         style: GoogleFonts.poppins(
-                          color: Colors.white60,
+                          color: Colors.white70,
                           fontSize: 14,
                         ),
                       ),
                       TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.pop(context); // Go back to SignIn
+                        },
                         child: Text(
-                          "Register Now",
+                          "Sign In",
                           style: GoogleFonts.poppins(
-                            color: Colors.blueAccent,
+                            color: Colors.pinkAccent,
                             fontSize: 14,
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
@@ -216,11 +317,11 @@ class RegisterScreen extends StatelessWidget {
     );
   }
 
-
-  // Social Media Button
   Widget _buildSocialButton(String asset) {
     return GestureDetector(
-      onTap: () {},
+      onTap: () {
+        // Implement social registration
+      },
       child: Image.asset(asset, height: 40),
     );
   }

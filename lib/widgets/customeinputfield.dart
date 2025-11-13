@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class CustomInputField extends StatelessWidget {
+class CustomInputField extends StatefulWidget {
   final String hint;
   final bool isPassword;
   final TextEditingController? controller;
@@ -16,23 +16,48 @@ class CustomInputField extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<CustomInputField> createState() => _CustomInputFieldState();
+}
+
+class _CustomInputFieldState extends State<CustomInputField> {
+  bool _obscureText = true;
+
+  @override
   Widget build(BuildContext context) {
     return TextField(
-      obscureText: isPassword,
-      controller: controller,
-      onChanged: onChanged,
-      style: GoogleFonts.poppins(color: Colors.white, fontSize: 14),
+      obscureText: widget.isPassword ? _obscureText : false,
+      controller: widget.controller,
+      onChanged: widget.onChanged,
+      style: GoogleFonts.poppins(
+        color: Theme.of(context).textTheme.bodyMedium?.color,
+        fontSize: 14,
+      ),
       decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: GoogleFonts.poppins(color: Colors.white60, fontSize: 14),
+        hintText: widget.hint,
+        hintStyle: GoogleFonts.poppins(
+          color: Theme.of(context).textTheme.bodyMedium?.color,
+          fontSize: 14,
+        ),
         filled: true,
-        fillColor: Colors.white.withOpacity(0.1),
+        fillColor: Theme.of(context).brightness == Brightness.dark
+            ? Colors.white.withOpacity(0.1)
+            : Colors.black.withOpacity(0.05),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(25),
           borderSide: BorderSide.none,
         ),
-        suffixIcon: isPassword
-            ? Icon(Icons.visibility_off, color: Colors.white60)
+        suffixIcon: widget.isPassword
+            ? IconButton(
+          icon: Icon(
+            _obscureText ? Icons.visibility_off : Icons.visibility,
+            color: Colors.grey, // grey icon
+          ),
+          onPressed: () {
+            setState(() {
+              _obscureText = !_obscureText;
+            });
+          },
+        )
             : null,
       ),
     );

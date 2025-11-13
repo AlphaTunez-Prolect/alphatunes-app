@@ -7,7 +7,7 @@ class RegistrationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black, // Set background color
+      backgroundColor:Theme.of(context).colorScheme.background, // Set background color
       body: Stack(
         children: [
           // Background Image
@@ -45,7 +45,7 @@ class RegistrationScreen extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 25,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white, // Customize text color
+                    color:  Colors.white, // Customize text color
                   ),
                 ),
                 SizedBox(height: 20,),
