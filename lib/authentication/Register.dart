@@ -28,7 +28,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     await prefs.setString('user_first_name', firstName);
     await prefs.setString('user_last_name', lastName);
     await prefs.setString('user_email', email);
-    await prefs.setBool('is_logged_in', true); // Important: Mark user as logged in
+    await prefs.setBool(
+        'is_logged_in', true); // Important: Mark user as logged in
 
     print('✅ User data saved locally: $firstName $lastName - $email');
   }
@@ -39,7 +40,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     required String email,
     required String password,
   }) async {
-    final url = Uri.parse('https://openauthzero.myf2.net/openauthzero/user/signup');
+    final url =
+        Uri.parse('https://openauthzero.myf2.net/openauthzero/user/signup');
 
     try {
       final response = await http.post(
@@ -81,7 +83,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
         // Save token if available
         if (data['token'] != null || data['access_token'] != null) {
           final prefs = await SharedPreferences.getInstance();
-          await prefs.setString('auth_token', data['token'] ?? data['access_token']);
+          await prefs.setString(
+              'auth_token', data['token'] ?? data['access_token']);
         }
 
         showSimpleNotification(
@@ -98,7 +101,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
       } else {
         final errorData = convert.jsonDecode(response.body);
         showSimpleNotification(
-          Text(errorData['message'] ?? "Sign up failed: ${response.reasonPhrase}"),
+          Text(errorData['message'] ??
+              "Sign up failed: ${response.reasonPhrase}"),
           background: Colors.red,
         );
         print('❌ Failed to sign up: ${response.statusCode}');
@@ -141,7 +145,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: Row(
                       children: [
                         IconButton(
-                          icon: Icon(Icons.arrow_back_ios, color: Colors.white), // Changed to white for visibility
+                          icon: Icon(Icons.arrow_back_ios,
+                              color: Colors
+                                  .white), // Changed to white for visibility
                           onPressed: () => Navigator.pop(context),
                         ),
                       ],
@@ -235,7 +241,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(25),
                       ),
-                      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 100),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 15, horizontal: 100),
                     ),
                     child: Text(
                       "Sign Up",

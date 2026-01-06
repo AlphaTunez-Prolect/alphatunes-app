@@ -37,7 +37,8 @@ class _SignInScreenState extends State<SignInScreen> {
   // Fetch user profile data after successful login
   Future<void> _fetchUserProfile(String email) async {
     try {
-      final url = Uri.parse('https://openauthzero.myf2.net/openauthzero/user/profile');
+      final url =
+          Uri.parse('https://openauthzero.myf2.net/openauthzero/user/profile');
       final response = await http.post(
         url,
         headers: {
@@ -75,7 +76,8 @@ class _SignInScreenState extends State<SignInScreen> {
       _isLoading = true;
     });
 
-    final url = Uri.parse('https://openauthzero.myf2.net/openauthzero/user/login');
+    final url =
+        Uri.parse('https://openauthzero.myf2.net/openauthzero/user/login');
 
     try {
       final response = await http.post(
@@ -129,7 +131,8 @@ class _SignInScreenState extends State<SignInScreen> {
       } else {
         final errorData = convert.jsonDecode(response.body);
         showSimpleNotification(
-          Text(errorData['message'] ?? "Login failed: ${response.reasonPhrase}"),
+          Text(
+              errorData['message'] ?? "Login failed: ${response.reasonPhrase}"),
           background: Colors.red,
         );
       }
@@ -224,20 +227,22 @@ class _SignInScreenState extends State<SignInScreen> {
                   ),
                   const SizedBox(height: 20),
                   ElevatedButton(
-                    onPressed: _isLoading ? null : () {
-                      final email = _emailController.text.trim();
-                      final password = _passwordController.text.trim();
+                    onPressed: _isLoading
+                        ? null
+                        : () {
+                            final email = _emailController.text.trim();
+                            final password = _passwordController.text.trim();
 
-                      if (email.isEmpty || password.isEmpty) {
-                        showSimpleNotification(
-                          Text("Please fill in both email and password."),
-                          background: Colors.red,
-                        );
-                        return;
-                      }
+                            if (email.isEmpty || password.isEmpty) {
+                              showSimpleNotification(
+                                Text("Please fill in both email and password."),
+                                background: Colors.red,
+                              );
+                              return;
+                            }
 
-                      signInUser(email: email, password: password);
-                    },
+                            signInUser(email: email, password: password);
+                          },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.pinkAccent,
                       shape: RoundedRectangleBorder(
@@ -248,21 +253,21 @@ class _SignInScreenState extends State<SignInScreen> {
                     ),
                     child: _isLoading
                         ? SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 2,
-                      ),
-                    )
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
                         : Text(
-                      "Sign In",
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
+                            "Sign In",
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
                   ),
                   const SizedBox(height: 20),
                   Row(
@@ -316,7 +321,8 @@ class _SignInScreenState extends State<SignInScreen> {
                         child: Text(
                           "Register Now",
                           style: GoogleFonts.poppins(
-                            color: Theme.of(context).textTheme.bodyMedium?.color,
+                            color:
+                                Theme.of(context).textTheme.bodyMedium?.color,
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                           ),
